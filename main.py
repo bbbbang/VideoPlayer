@@ -7,6 +7,9 @@ import threading
 import glob
 import os
 from time import sleep
+import io
+import folium
+from PyQt5 import QtWidgets, QtWebEngineWidgets
 
 playing = False
 
@@ -16,8 +19,8 @@ class App(QMainWindow):
         self.title = 'qt'
         self.left = 100
         self.top = 100
-        self.width = 300
-        self.height = 200
+        self.width = 1000
+        self.height = 700
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
  
@@ -68,10 +71,26 @@ class MyTableWidget(QWidget):
         self.listView.setModel(self.model)
         self.tab2.layout.addWidget(self.listView, 0, 0)
 
+        self.locList = []
+        self.locX = 37.564214
+        self.locY = 127.001699
+        loc = [self.locX, self.locY]
+        self.locList.append(loc)
+        m = folium.Map(location=[self.locX, self.locY], tiles="OpenStreetMap", zoom_start=15)
+        
+        data = io.BytesIO()
+        m.save(data, close_file=False)
+        
+        self.w = QtWebEngineWidgets.QWebEngineView()
+        self.w.setHtml(data.getvalue().decode())
+
+        self.tab2.layout.addWidget(self.w, 0, 1)
+
         self.pushButton2 = QPushButton("PyQt5 button")
         self.tab2.layout.addWidget(self.pushButton2, 1, 0)
 
         self.pushButton3 = QPushButton("PyQt4444445 button")
+        self.pushButton3.clicked.connect(self.test)
         self.tab2.layout.addWidget(self.pushButton3, 1, 1)
 
         self.tab2.setLayout(self.tab2.layout)
@@ -89,7 +108,19 @@ class MyTableWidget(QWidget):
         fname = QFileDialog.getOpenFileName(self)
         self.label.setText(fname[0])
 
-
+    def test(self):
+        self.locX += 0.00333
+        self.locY += 0.00333
+        loc = [self.locX, self.locY]
+        self.locList.append(loc)
+        m = folium.Map(location=[self.locX, self.locY], tiles="OpenStreetMap", zoom_start=15)
+        
+        for l in self.locList:
+            folium.Marker(location=[l[0], l[1]], icon=folium.Icon(color='red', icon='star'), popup="Center of seoul").add_to(m)
+        data = io.BytesIO()
+        m.save(data, close_file=False)
+        
+        self.w.setHtml(data.getvalue().decode())
 
 class VideoManager(QWidget):
     videoName = ''
