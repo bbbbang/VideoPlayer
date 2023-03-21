@@ -12,7 +12,7 @@ import folium
 from PyQt5 import QtWidgets, QtWebEngineWidgets
 ####
 playing = False
-
+##############
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
